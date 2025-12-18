@@ -2,7 +2,8 @@ package com.example.demo.entity;
 import  jakarta.persistence.*;
 @Entity
 @Table(name="users")
-public class User{
+public class User
+{
    @ID
    @GeneratedValue(strategy=GenerationType.IDENTITY)
    private Long id;
@@ -49,4 +50,4 @@ public class User{
     public void setRole(String role){
     this.role=role;
     }
-   }
+}
