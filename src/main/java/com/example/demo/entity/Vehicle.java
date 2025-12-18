@@ -11,5 +11,8 @@ public class Vehicle{
     @Column(unique=true,nullable=false)
     private String vehicleNumber;
     private Double capacityKg;
-        
+    private Double fuelEfficiency;
+    public Vehicle(){}    
+    public Vehicle(Long id,User user,String vehicleNumber,Double capacityKg)
+    
 }
