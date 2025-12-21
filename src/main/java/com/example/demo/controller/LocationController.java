@@ -1,36 +1,31 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.entity.Location;
-import com.example.demo.repository.LocationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.service.LocationService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/locations")
+@RequestMapping("/locations")
 public class LocationController {
-
-    @Autowired
-    private LocationRepository locationRepository;
-
+    
+    private final LocationService locationService;
+    
+    public LocationController(LocationService locationService) {
+        this.locationService = locationService;
+    }
+    
     @PostMapping
-    public Location createLocation(@RequestBody Location location) {
-        return locationRepository.save(location);
+    public ResponseEntity<ApiResponse> createLocation(@RequestBody Location location) {
+        Location savedLocation = locationService.createLocation(location);
+        return ResponseEntity.ok(new ApiResponse(true, "Location created successfully", savedLocation));
     }
-
+    
     @GetMapping
-    public List<Location> getAllLocations() {
-        return locationRepository.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Location getLocationById(@PathVariable Long id) {
-        return locationRepository.findById(id).orElse(null);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteLocation(@PathVariable Long id) {
-        locationRepository.deleteById(id);
+    public ResponseEntity<List<Location>> getAllLocations() {
+        List<Location> locations = locationService.getAllLocations();
+        return ResponseEntity.ok(locations);
     }
 }
