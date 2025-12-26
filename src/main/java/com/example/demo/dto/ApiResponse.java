@@ -22,4 +22,3 @@ public class ApiResponse<T> {
         return response;
     }
 }
-sudo apt purge mariadb-server mariadb-client mariadb-common mariadb-server-core-* mariadb-client-core-*
