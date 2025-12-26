@@ -3,50 +3,49 @@ package com.example.demo.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Map;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
 
+    // ⚠️ Must be at least 32 characters for HS256
     private static final String SECRET_KEY =
-            "mysecretkeymysecretkeymysecretkeymysecretkey"; // min 32 chars
+            "mysecretkeymysecretkeymysecretkeymysecretkey";
 
-    private SecretKey getSignKey() {
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    // ✅ Generate Token
+    // ✅ Generate JWT Token
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000)) // 1 hour
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ✅ Extract username
+    // ✅ Extract username (email)
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // ✅ Extract claims
+    // ✅ Extract single claim
     public <T> T extractClaim(String token, Function<Claims, T> resolver) {
         Claims claims = extractAllClaims(token);
         return resolver.apply(claims);
     }
 
-    // ✅ Parse token (CORRECT way for jjwt 0.11.5)
+    // ✅ Parse all claims
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -54,10 +53,10 @@ public class JwtUtil {
 
     // ✅ Validate token
     public boolean isTokenValid(String token, String username) {
-        return extractUsername(token).equals(username)
-                && !isTokenExpired(token);
+        return username.equals(extractUsername(token)) && !isTokenExpired(token);
     }
 
+    // ✅ Check expiry
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
