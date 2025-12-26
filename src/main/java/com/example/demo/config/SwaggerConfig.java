@@ -17,4 +17,3 @@ public class SwaggerConfig {
                         .description("API for optimizing transport routes"));
     }
 }
-```
