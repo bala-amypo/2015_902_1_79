@@ -6,35 +6,38 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.RouteOptimizationResultRepository;
 import com.example.demo.repository.ShipmentRepository;
 import com.example.demo.service.RouteOptimizationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class RouteOptimizationServiceImpl implements RouteOptimizationService {
     
     private final ShipmentRepository shipmentRepository;
     private final RouteOptimizationResultRepository resultRepository;
-    
-    public RouteOptimizationServiceImpl(ShipmentRepository shipmentRepository, RouteOptimizationResultRepository resultRepository) {
-        this.shipmentRepository = shipmentRepository;
-        this.resultRepository = resultRepository;
-    }
     
     @Override
     public RouteOptimizationResult optimizeRoute(Long shipmentId) {
         Shipment shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found"));
         
-        double lat1 = shipment.getPickupLocation().getLatitude();
-        double lon1 = shipment.getPickupLocation().getLongitude();
-        double lat2 = shipment.getDropLocation().getLatitude();
-        double lon2 = shipment.getDropLocation().getLongitude();
+        double pickupLat = shipment.getPickupLocation().getLatitude();
+        double pickupLng = shipment.getPickupLocation().getLongitude();
+        double dropLat = shipment.getDropLocation().getLatitude();
+        double dropLng = shipment.getDropLocation().getLongitude();
+        double fuelEfficiency = shipment.getVehicle().getFuelEfficiency();
         
-        double distance = Math.hypot(lat2 - lat1, lon2 - lon1) * 111; // Approximate km conversion
-        double fuelUsage = distance / shipment.getVehicle().getFuelEfficiency();
+        double distanceKm = Math.hypot(pickupLat - dropLat, pickupLng - dropLng) * 111; // Approx km
+        double fuelUsageL = distanceKm / fuelEfficiency;
         
-        RouteOptimizationResult result = new RouteOptimizationResult(
-                shipment, distance, fuelUsage, LocalDateTime.now());
+        RouteOptimizationResult result = RouteOptimizationResult.builder()
+                .shipment(shipment)
+                .optimizedDistanceKm(Math.max(1.0, distanceKm))
+                .estimatedFuelUsageL(Math.max(0.1, fuelUsageL))
+                .generatedAt(LocalDateTime.now())
+                .build();
         
         return resultRepository.save(result);
     }

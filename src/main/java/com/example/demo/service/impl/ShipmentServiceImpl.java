@@ -8,21 +8,18 @@ import com.example.demo.repository.LocationRepository;
 import com.example.demo.repository.ShipmentRepository;
 import com.example.demo.repository.VehicleRepository;
 import com.example.demo.service.ShipmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 
 @Service
+@RequiredArgsConstructor
 public class ShipmentServiceImpl implements ShipmentService {
     
     private final ShipmentRepository shipmentRepository;
     private final VehicleRepository vehicleRepository;
     private final LocationRepository locationRepository;
-    
-    public ShipmentServiceImpl(ShipmentRepository shipmentRepository, VehicleRepository vehicleRepository, LocationRepository locationRepository) {
-        this.shipmentRepository = shipmentRepository;
-        this.vehicleRepository = vehicleRepository;
-        this.locationRepository = locationRepository;
-    }
     
     @Override
     public Shipment createShipment(Long vehicleId, Shipment shipment) {
@@ -36,7 +33,7 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Drop location not found"));
         
         if (shipment.getWeightKg() > vehicle.getCapacityKg()) {
-            throw new IllegalArgumentException("Weight exceeds vehicle capacity");
+            throw new IllegalArgumentException("Shipment weight exceeds vehicle capacity");
         }
         
         if (shipment.getScheduledDate().isBefore(LocalDate.now())) {
