@@ -1,29 +1,31 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.entity.Location;
 import com.example.demo.service.LocationService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/locations")
-@RequiredArgsConstructor
 public class LocationController {
-    
     private final LocationService locationService;
-    
-    @PostMapping
-    public ApiResponse<Location> createLocation(@RequestBody Location location) {
-        Location saved = locationService.createLocation(location);
-        return ApiResponse.success(saved);
+
+    public LocationController(LocationService locationService) {
+        this.locationService = locationService;
     }
-    
+
+    @PostMapping
+    public ResponseEntity<Location> createLocation(@RequestBody Location location) {
+        Location savedLocation = locationService.createLocation(location);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedLocation);
+    }
+
     @GetMapping
-    public ApiResponse<List<Location>> getAllLocations() {
+    public ResponseEntity<List<Location>> getAllLocations() {
         List<Location> locations = locationService.getAllLocations();
-        return ApiResponse.success(locations);
+        return ResponseEntity.ok(locations);
     }
 }
