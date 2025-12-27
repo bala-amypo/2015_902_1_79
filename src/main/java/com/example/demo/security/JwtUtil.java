@@ -10,11 +10,13 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+
     private final SecretKey key;
     private final long validityInMs;
 
-    public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long validityInMs) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    // ✅ Auto-generate secure HS256 key
+    public JwtUtil(@Value("${jwt.expiration}") long validityInMs) {
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         this.validityInMs = validityInMs;
     }
 
@@ -28,7 +30,7 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key) // HS256 automatically used
                 .compact();
     }
 
@@ -41,16 +43,14 @@ public class JwtUtil {
 
     public Long getUserIdFromToken(String token) {
         Claims claims = validateToken(token).getBody();
-        return Long.valueOf(((Number) claims.get("userId")).longValue());
+        return ((Number) claims.get("userId")).longValue();
     }
 
     public String getEmailFromToken(String token) {
-        Claims claims = validateToken(token).getBody();
-        return claims.get("email", String.class);
+        return validateToken(token).getBody().get("email", String.class);
     }
 
     public String getRoleFromToken(String token) {
-        Claims claims = validateToken(token).getBody();
-        return claims.get("role", String.class);
+        return validateToken(token).getBody().get("role", String.class);
     }
 }
