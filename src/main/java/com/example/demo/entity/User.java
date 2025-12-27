@@ -1,10 +1,13 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "email")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,16 +16,27 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @NotBlank
+    @Size(min = 2, max = 100)
     private String name;
-    
+
+    @Email
+    @NotBlank
     @Column(unique = true)
     private String email;
-    
+
+    @NotBlank
+    @Size(min = 6)
     private String password;
-    
-    private String role = "USER";
-    
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private java.util.Set<Vehicle> vehicles = new java.util.HashSet<>();
+
+    @NotBlank
+    private String role;
+
+    public User(String name, String email, String password, String role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 }
