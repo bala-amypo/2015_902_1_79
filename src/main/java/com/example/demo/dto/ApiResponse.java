@@ -1,24 +1,24 @@
 package com.example.demo.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ApiResponse<T> {
+
     private boolean success;
     private String message;
     private T data;
-    
-    public static <T> ApiResponse<T> success(T data) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.setSuccess(true);
-        response.setData(data);
-        return response;
+    private long timestamp;
+
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>(true, message, data, System.currentTimeMillis());
     }
-    
-    public static <T> ApiResponse<T> error(String message) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.setSuccess(false);
-        response.setMessage(message);
-        return response;
+
+    public static <T> ApiResponse<T> failure(String message) {
+        return new ApiResponse<>(false, message, null, System.currentTimeMillis());
     }
 }
