@@ -2,28 +2,37 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Shipment;
 import com.example.demo.service.ShipmentService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/shipments")
 public class ShipmentController {
+
     private final ShipmentService shipmentService;
 
+    // Constructor injection (mandatory)
     public ShipmentController(ShipmentService shipmentService) {
         this.shipmentService = shipmentService;
     }
 
-    @PostMapping("/{vehicleId}")
-    public ResponseEntity<Shipment> createShipment(@PathVariable Long vehicleId, @RequestBody Shipment shipment) {
-        Shipment savedShipment = shipmentService.createShipment(vehicleId, shipment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedShipment);
+    // Create Shipment for a Vehicle
+    @PostMapping(
+            value = "/{vehicleId}",
+            consumes = "application/json",
+            produces = "application/json"
+    )
+    public Shipment createShipment(
+            @PathVariable Long vehicleId,
+            @RequestBody Shipment shipment) {
+        return shipmentService.createShipment(vehicleId, shipment);
     }
 
-    @GetMapping("/{shipmentId}")
-    public ResponseEntity<Shipment> getShipment(@PathVariable Long shipmentId) {
-        Shipment shipment = shipmentService.getShipment(shipmentId);
-        return ResponseEntity.ok(shipment);
+    // Get Shipment by ID
+    @GetMapping(
+            value = "/{shipmentId}",
+            produces = "application/json"
+    )
+    public Shipment getShipment(@PathVariable Long shipmentId) {
+        return shipmentService.getShipment(shipmentId);
     }
 }
