@@ -1,45 +1,102 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "route_optimization_results")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class RouteOptimizationResult {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shipment_id")
+    @ManyToOne
     private Shipment shipment;
 
-    @NotNull
-    @Positive
     private Double optimizedDistanceKm;
 
-    @NotNull
-    @Positive
     private Double estimatedFuelUsageL;
 
-    @NotNull
     private LocalDateTime generatedAt;
 
-    public RouteOptimizationResult(Shipment shipment, Double optimizedDistanceKm, Double estimatedFuelUsageL, LocalDateTime generatedAt) {
+    // ---------- getters & setters ----------
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Shipment getShipment() {
+        return shipment;
+    }
+
+    public void setShipment(Shipment shipment) {
         this.shipment = shipment;
+    }
+
+    public Double getOptimizedDistanceKm() {
+        return optimizedDistanceKm;
+    }
+
+    public void setOptimizedDistanceKm(Double optimizedDistanceKm) {
         this.optimizedDistanceKm = optimizedDistanceKm;
+    }
+
+    public Double getEstimatedFuelUsageL() {
+        return estimatedFuelUsageL;
+    }
+
+    public void setEstimatedFuelUsageL(Double estimatedFuelUsageL) {
         this.estimatedFuelUsageL = estimatedFuelUsageL;
+    }
+
+    public LocalDateTime getGeneratedAt() {
+        return generatedAt;
+    }
+
+    public void setGeneratedAt(LocalDateTime generatedAt) {
         this.generatedAt = generatedAt;
     }
 
-    @PrePersist
-    protected void onCreate() {
-        generatedAt = LocalDateTime.now();
+    // ---------- MANUAL BUILDER (IMPORTANT) ----------
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final RouteOptimizationResult r = new RouteOptimizationResult();
+
+        public Builder id(Long id) {
+            r.setId(id);
+            return this;
+        }
+
+        public Builder shipment(Shipment shipment) {
+            r.setShipment(shipment);
+            return this;
+        }
+
+        public Builder optimizedDistanceKm(Double d) {
+            r.setOptimizedDistanceKm(d);
+            return this;
+        }
+
+        public Builder estimatedFuelUsageL(Double f) {
+            r.setEstimatedFuelUsageL(f);
+            return this;
+        }
+
+        public Builder generatedAt(LocalDateTime t) {
+            r.setGeneratedAt(t);
+            return this;
+        }
+
+        public RouteOptimizationResult build() {
+            return r;
+        }
     }
 }
